@@ -1,0 +1,16 @@
+name: Test frontend in docker container
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: docker build -t unclejunebug/frontend-test -f Dockerfile.dev .
+      - run: docker run -e CI=true unclejunebug/frontend-test npm test
