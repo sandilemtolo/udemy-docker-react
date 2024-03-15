@@ -1,0 +1,26 @@
+name: Deploy Frontend
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: docker build -t  unclejunebug/frontend .
+
+      - name: Generate deployment package
+        run: zip -r deploy.zip . -x '*.git*'
+
+      - name: Deploy to Elasticbeanstalk
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.UDEMY_FRONTEND_CI_AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.UDEMY_FRONTEND_CI_AWS_SECRET_ACCESS_KEY }}
+          application_name: udemy-frontend
+          environment_name: Udemy-frontend-env
+          existing_bucket_name: elasticbeanstalk-eu-north-1-975050248208
+          region: eu-north-1
+          version_label: ${{ github.sha }}
+          deployment_package: deploy.zip
